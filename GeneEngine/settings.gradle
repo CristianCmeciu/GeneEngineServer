@@ -1,0 +1,4 @@
+rootProject.name = 'GeneEngine'
+include 'Proxy'
+include 'Domain'
+
