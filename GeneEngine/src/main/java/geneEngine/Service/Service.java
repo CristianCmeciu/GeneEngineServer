@@ -1,22 +1,36 @@
 package geneEngine.Service;
 
-import geneEngine.ApiCalls.APICaller;
 import geneEngine.ApiCalls.NcbiAPICaller;
+import geneEngine.Gene;
+import geneEngine.JSONUtils;
+import geneEngine.Repository.GeneRepository;
 import org.json.JSONObject;
 
+@org.springframework.stereotype.Service
 public class Service {
-    NcbiAPICaller ncbiAPICaller = new NcbiAPICaller("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/");
+    GeneRepository geneRepo;
 
+    public Service(GeneRepository geneRepo) {
+        this.geneRepo = geneRepo;
+    }
+
+    NcbiAPICaller ncbiAPICaller = new NcbiAPICaller("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/");
     public String getGene(String name) {
         JSONObject x;
+        Gene gene;
         try {
-            x = ncbiAPICaller.getGeneInfoFromID(ncbiAPICaller.getGeneIdFromSymbol(name));
+            gene = geneRepo.findById(name);
+            if (gene == null) {
+                x = ncbiAPICaller.getGeneInfoFromID(ncbiAPICaller.getGeneIdFromSymbol(name));
+                gene = JSONUtils.JSONtoGene(x);
+                x = JSONUtils.GenetoJSON(gene);
+                geneRepo.save(gene);
+            }
+            else {
+                x = JSONUtils.GenetoJSON(gene);
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
-        }
-        if (x==null){
-            x = new JSONObject();
-            x.put("Error", "No matching Gene Name");
         }
         return x.toString();
     }

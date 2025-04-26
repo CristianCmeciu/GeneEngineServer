@@ -1,5 +1,6 @@
 package geneEngine.ApiCalls;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -30,32 +31,30 @@ public class NcbiAPICaller extends AbstractAPICaller{
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         JSONObject jsonObject = new JSONObject(reader.readLine());
         JSONObject test = jsonObject.getJSONObject("result").getJSONObject(id.toString());
-        /*
-        Set<String> keysToKeep = Set.of("name", "summary","description");
-
-        Set<String> keysToRemove = new HashSet<>();
-
-        for (String key : test.keySet()) {
-            if (!keysToKeep.contains(key)) {
-                keysToRemove.add(key);
-            }
-        }
-
-        for (String key : keysToRemove) {
-            test.remove(key);
-        }
-        test.put("summary",test.getString("summary").split("\\.")[0] + '.');
-        int n = 10;
-        var lista = getDiseasesByGeneId(id.toString());
-        JSONArray array = new JSONArray();
-        for (var x: lista){
-            array.put(x.split("[,;]")[0].replaceAll(" SUSCEPTIBILITY [0-9]",""));
-            n--;
-            if (n==0)
-                break;
-        }
-        test.put("diseases",array);
-         */
+        test.put("diseases",getDiseasesByGeneId(id.toString()));
         return test;
+    }
+
+    public String getDiseasesByGeneId(String geneId) throws Exception {
+        HttpURLConnection conn = getConnection("elink.fcgi?dbfrom=gene&id=" + geneId + "&db=omim&tool=GeneExplorer&retmode=json&api_key=f48faf88b7b516ba12be179267a8130fdd08");
+
+        InputStream is = conn.getInputStream();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        JSONObject response = new JSONObject(reader.readLine());
+        JSONArray linkSets = response.getJSONArray("linksets");
+        if (linkSets.isEmpty()) {return "";}
+        JSONArray links = linkSets.getJSONObject(0).getJSONArray("linksetdbs").getJSONObject(0).getJSONArray("links");
+        if (links.isEmpty()) {return "";}
+        String ids = String.join(",", links.toList().stream().map(Object::toString).toArray(String[]::new));
+        conn = getConnection("esummary.fcgi?db=omim&id=" + ids + "&tool=GeneExlporer&retmode=json&api_key=f48faf88b7b516ba12be179267a8130fdd08");
+        is = conn.getInputStream();
+        reader = new BufferedReader(new InputStreamReader(is));
+        JSONObject result = new JSONObject(reader.readLine()).getJSONObject("result");
+        StringBuilder names = new StringBuilder();
+        for (String id : ids.split(",")) {
+            String name = result.getJSONObject(id).getString("title");
+            names.append(name);
+        }
+        return names.toString();
     }
 }

@@ -15,7 +15,7 @@ public class AbstractAPICaller implements APICaller {
 
     @Override
     public HttpURLConnection getConnection(String link) throws IOException, URISyntaxException {
-        URL url = new URI(link).toURL();
+        URL url = new URI(base_url + link).toURL();
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
         connection.setRequestProperty("Content-Type", "application/json");
