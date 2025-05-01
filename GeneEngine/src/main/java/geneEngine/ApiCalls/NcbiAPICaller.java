@@ -57,4 +57,15 @@ public class NcbiAPICaller extends AbstractAPICaller{
         }
         return names.toString();
     }
+
+    public JSONObject meshQueryId(String id) throws IOException, URISyntaxException {
+        JSONObject result = new JSONObject();
+        HttpURLConnection conn = getConnection("esummary.fcgi?db=mesh&id=" + id + "&retmode=json&api_key=f48faf88b7b516ba12be179267a8130fdd08");
+        InputStream is = conn.getInputStream();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        JSONObject response = new JSONObject(reader.readLine());
+        result.put("children",response.getJSONObject("result").getJSONObject(id).getJSONArray("ds_idxlinks").getJSONObject(0).getJSONArray("children"));
+        result.put("name",response.getJSONObject("result").getJSONObject(id).getJSONArray("ds_meshterms").getString(0));
+        return result;
+    }
 }
