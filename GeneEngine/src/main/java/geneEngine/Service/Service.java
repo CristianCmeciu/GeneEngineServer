@@ -51,6 +51,6 @@ public class Service {
             disease.put("name",x.getName());
             array.put(disease);
         }
-        return diseases.toString();
+        return array.toString();
     }
 }
