@@ -25,4 +25,9 @@ public class RESTController {
     public String getDiseases(@PathVariable String diseaseId) {
         return service.getDiseases(diseaseId);
     }
+
+    @GetMapping("/disease/categories")
+    public String getCategories(){
+        return service.getDiseases("1000067");
+    }
 }
