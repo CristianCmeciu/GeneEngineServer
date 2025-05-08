@@ -24,6 +24,8 @@ public class PopulateTables {
             JSONArray categories = object.getJSONArray("children");
             if (categories != null) {
                 for (var childrenid : categories) {
+                    if (id.equals("68002318"))
+                        Thread.sleep(1000);
                     JSONObject category = ncbiAPICaller.meshQueryId((String) childrenid);
                     if (category.getString("name").equals("Animal Diseases"))
                         continue;
@@ -31,7 +33,7 @@ public class PopulateTables {
                     populateDiseases((String) childrenid);
                 }
             }
-        } catch (IOException | URISyntaxException e) {
+        } catch (IOException | URISyntaxException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
