@@ -16,12 +16,12 @@ public class RESTController {
         this.service = service;
     }
 
-    @GetMapping("/{geneName}")
+    @GetMapping("/gene/{geneName}")
     public String getGene(@PathVariable String geneName) {
         return service.getGene(geneName);
     }
 
-    @GetMapping("/{diseaseId}")
+    @GetMapping("/disease/{diseaseId}")
     public String getDiseases(@PathVariable String diseaseId) {
         return service.getDiseases(diseaseId);
     }
